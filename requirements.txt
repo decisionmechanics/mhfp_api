@@ -1,4 +1,6 @@
+fastapi[all]
 numpy
 openpyxl
 pandas
+python-jose[cryptography]
 XlsxWriter
