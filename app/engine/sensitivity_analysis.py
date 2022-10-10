@@ -4,7 +4,7 @@ from app.engine.utilities import collate_results
 
 def run_sensitivity_analysis(
     region_list,
-    inpath,
+    input_data,
     outpath,
     final_year,
     main_results,
@@ -18,11 +18,10 @@ def run_sensitivity_analysis(
     loop structure and add an additional sheet to the output file at the end. Note that sensitivity analyses for additional
     parameters will need to be manually added to the summary plot files.
     :param: region_List: List of regions considered in the analysis (can be country name if it is a national analysis only.)
-    :param inpath: file path for BCR input file (most likely summary sheet)
+    :param input_data: dictionary containing data from BCR input file (most likely summary sheet)
     :param outpath: file path for BCR outputs
     """
 
-    input_filepath = inpath
     output_filepath = outpath
     total_cost = [0]
     for r, region in enumerate(region_list):
@@ -38,7 +37,7 @@ def run_sensitivity_analysis(
                 child_death,
                 child_morb,
                 stillbirth,
-            ) = read_benefit_params(region + package, input_filepath)
+            ) = read_benefit_params(region + package, input_data)
             total_cost = total_cost + pars_country["Total expenditure"][0]
             discount_totals = []
             for discount in [0, pars_country["Discounting"][0], 0.06]:

@@ -5,6 +5,7 @@ import os
 from app.engine.all_countries_loop import *
 from app.engine.calc_benefit_types import *
 from app.engine.sensitivity_analysis import *
+from app.engine.calculations import read_all_data
 
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -22,11 +23,12 @@ regions = regions.values
 region_list = regions[:, [0]].flatten()
 region_list = ["Kenya"]
 
+input_data = read_all_data(input_path)
+
 # Include option to take out SB related to FP
 main_results, daly_df = run_bcr_script(
     region_list=region_list,
-    inpath=input_path,
-    outpath=output_path,
+    input_data=input_data,
     final_year=end_year,
     include_fp_stillbirth_mort=include_fp_stillbirth_mort,
     include_all_countries=len(region_list) > 1,
@@ -34,7 +36,7 @@ main_results, daly_df = run_bcr_script(
 
 sens = run_sensitivity_analysis(
     region_list=region_list,
-    inpath=input_path,
+    input_data=input_data,
     outpath=output_path,
     final_year=end_year,
     main_results=main_results,

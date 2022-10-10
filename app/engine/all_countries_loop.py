@@ -7,29 +7,25 @@ from app.engine.utilities import read_data
 np.seterr(divide="ignore", invalid="ignore")
 
 
-def read_benefit_params(country, filepath):
+def read_benefit_params(country, input_data):
     """
     Pull in parameters to be used in benefit cost calculations
       :param country: country or region to be extracted, corresponding to rows in the excel workbook
-      :param filepath: location of file with BCR input template
+      :param input_data: dictionary containing data from BCR input file (most likely summary sheet)
       :param include_fp_mort: determines whether stillbirths, neonatal deaths and child deaths averted due to pregnancies averted are included
       :return: parameters for BCR calculations and vectors for deaths etc to be used in calculations
     """
 
-    maternal_lives_saved = read_data(filepath, sheet_name="Mat lives saved")
-    neonatal_lives_saved = read_data(filepath, sheet_name="Neo lives saved")
-    stillbirths_averted = read_data(filepath, sheet_name="Stillbirths averted")
-    unintended_preg_avert = read_data(
-        filepath, sheet_name="Unintended pregnancies averted"
-    )
-    child_lives_saved = read_data(filepath, sheet_name="Child lives saved")
-    fp_maternal_lives_saved = read_data(filepath, sheet_name="FP_Mat lives saved")
-    maternal_morbidities_averted = read_data(
-        filepath, sheet_name="Mat morbidities averted"
-    )
-    neo_morbidities_averted = read_data(filepath, sheet_name="Neo morbidites averted")
-    wasting_averted = read_data(filepath, sheet_name="Wasting averted")
-    stunting_averted = read_data(filepath, sheet_name="Stunting averted")
+    maternal_lives_saved = input_data["Mat lives saved"]
+    neonatal_lives_saved = input_data["Neo lives saved"]
+    stillbirths_averted = input_data["Stillbirths averted"]
+    unintended_preg_avert = input_data["Unintended pregnancies averted"]
+    child_lives_saved = input_data["Child lives saved"]
+    fp_maternal_lives_saved = input_data["FP_Mat lives saved"]
+    maternal_morbidities_averted = input_data["Mat morbidities averted"]
+    neo_morbidities_averted = input_data["Neo morbidites averted"]
+    wasting_averted = input_data["Wasting averted"]
+    stunting_averted = input_data["Stunting averted"]
 
     mat_death = np.array(
         maternal_lives_saved.loc[maternal_lives_saved["Country"] == country, 2022:2030]
@@ -89,7 +85,7 @@ def read_benefit_params(country, filepath):
     )
     neo_morb["General"] = np.nan_to_num(neo_morb0).flatten()
 
-    constant_params = read_data(filepath, sheet_name="BCR inputs constant")
+    constant_params = input_data["BCR inputs constant"]
     pars_country = constant_params.loc[
         constant_params["Country"] == country
     ].reset_index()
@@ -312,8 +308,7 @@ def total_econ_benefits(
 
 def run_bcr_script(
     region_list,
-    inpath,
-    outpath,
+    input_data,
     final_year,
     include_fp_stillbirth_mort=True,
     include_all_countries=True,
@@ -321,13 +316,10 @@ def run_bcr_script(
 
     """
     :param: region_List: List of regions considered in the analysis (can be country name if it is a national analysis only.)
-    :param inpath: file path for BCR input file (most likely summary sheet)
-    :param outpath: file path for BCR outputs
+    :param input_data: dictionary containing data from BCR input file (most likely summary sheet)
     """
 
     # filepath, initials = ou._get_gdrive_folder()
-    input_filepath = inpath
-    output_filepath = outpath
     standard_benefits_total = [0]
     total_cost = [0]
 
@@ -343,7 +335,7 @@ def run_bcr_script(
                 child_death,
                 child_morb,
                 stillbirth,
-            ) = read_benefit_params(region, input_filepath)
+            ) = read_benefit_params(region, input_data)
 
             standard_benefits = total_econ_benefits(
                 pars_country,
