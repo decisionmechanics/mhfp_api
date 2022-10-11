@@ -33,25 +33,29 @@ def read_all_data(database_path):
     }
 
 
-def remove_empty_packages(report):
+def format_report(report):
     for item in report["Main results"]:
+        del item["Region"]
+
         if item["Package"] == "":
             del item["Package"]
 
     for item in report["sensitivity_analysis"].values():
         for subitem in item:
+            del subitem["Region"]
+
             if subitem["Package"] == "":
                 del subitem["Package"]
 
 
-def generate_report(countries):
+def generate_report(country):
     FINAL_YEAR = 2050
     INCLUDE_FP_STILLBIRTH_MORTALITY = False
 
     input_data = read_all_data(database_path)
 
     main_df, daly_df = run_bcr_script(
-        region_list=countries,
+        region_list=[country],
         input_data=input_data,
         final_year=FINAL_YEAR,
         include_fp_stillbirth_mort=INCLUDE_FP_STILLBIRTH_MORTALITY,
@@ -59,7 +63,7 @@ def generate_report(countries):
     )
 
     report = run_sensitivity_analysis(
-        region_list=countries,
+        region_list=[country],
         input_data=input_data,
         outpath=None,
         final_year=FINAL_YEAR,
@@ -70,7 +74,7 @@ def generate_report(countries):
         output_to_excel=False,
     )
 
-    remove_empty_packages(report)
+    format_report(report)
 
     return report
 
