@@ -1,5 +1,5 @@
 from typing import Dict, List
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_camelcase import CamelModel
 from app.engine.calculations import generate_report
@@ -120,8 +120,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+router = APIRouter(prefix="/api/v1", tags=["report"])
 
-@app.get("/api/v1/parameters/{country}", response_model=Parameters, tags=["report"])
+
+@router.get("/parameters/{country}", response_model=Parameters)
 def get_parameters(country: str) -> Parameters:
     return Parameters(
         initial_year=2022,
@@ -135,6 +137,9 @@ def get_parameters(country: str) -> Parameters:
     )
 
 
-@app.post("/api/v1/report/{country}", response_model=Dict, tags=["report"])
+@router.post("/report/{country}", response_model=Dict)
 def create_report(country, parameters: Parameters) -> Dict:
     return generate_report([country])
+
+
+app.include_router(router)
