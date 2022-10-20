@@ -1,109 +1,12 @@
-from typing import Dict, List
-from fastapi import APIRouter, FastAPI
+from pathlib import Path
+from typing import Dict
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_camelcase import CamelModel
-from app.engine.calculations import generate_report
+from app.engine.calculations import generate_report, get_country_df, read_all_data
+from app.engine.countries import get_country_name
+from app.schema import CustomParameters, DefaultParameters, Report
 
-VERSION = "0.1.2"
-
-
-class Parameters(CamelModel):
-    initial_year: int
-    costs: List[float]
-    unintended_pregnancies_averted: List[float]
-    maternal_lives_saved_from_scaling_up_fp: List[float]
-    maternal_lives_saved_from_mh_interventions: List[float]
-    maternal_morbidities_averted: List[float]
-    neonatal_lives_saved: List[float]
-    stillbirths_averted: List[float]
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "initial_year": 2022,
-                "costs": [
-                    67_215_311.68,
-                    90_995_943.56,
-                    115_438_886.8,
-                    140_414_456.6,
-                    165_718_637.1,
-                    191_145_937.3,
-                    215_844_534.3,
-                    240_638_424.8,
-                    264_004_169.4,
-                ],
-                "unintended_pregnancies_averted": [
-                    68_401,
-                    142_589,
-                    222_697,
-                    308_745,
-                    400_823,
-                    498_975,
-                    603_317,
-                    714_117,
-                    831_654,
-                ],
-                "maternal_lives_saved_from_scaling_up_fp": [
-                    208,
-                    433,
-                    676,
-                    937,
-                    1_217,
-                    1_515,
-                    1_832,
-                    2_168,
-                    2_525,
-                ],
-                "maternal_lives_saved_from_mh_interventions": [
-                    626,
-                    1_282,
-                    1_819,
-                    2_256,
-                    2_596,
-                    2_850,
-                    3_018,
-                    3_131,
-                    3_167,
-                ],
-                "maternal_morbidities_averted": [
-                    1357,
-                    2829,
-                    4418,
-                    6125,
-                    7952,
-                    9899,
-                    11969,
-                    14167,
-                    16498,
-                ],
-                "neonatal_lives_saved": [
-                    1_568,
-                    2_875,
-                    4_050,
-                    5_099,
-                    6_021,
-                    6_815,
-                    7_448,
-                    7_986,
-                    8_350,
-                ],
-                "stillbirths_averted": [
-                    2_708,
-                    5_158,
-                    7_375,
-                    9_365,
-                    11_125,
-                    12_653,
-                    13_886,
-                    14_935,
-                    15_669,
-                ],
-            }
-        }
-
-
-class Report(CamelModel):
-    ...
+VERSION = "0.1.3"
 
 
 app = FastAPI(
@@ -120,26 +23,88 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-router = APIRouter(prefix="/api/v1", tags=["report"])
+router = APIRouter(prefix="/api/v1")
 
 
-@router.get("/parameters/{country}", response_model=Parameters)
-def get_parameters(country: str) -> Parameters:
-    return Parameters(
-        initial_year=2022,
-        costs=[],
-        unintended_pregnancies_averted=[],
-        maternal_lives_saved_from_scaling_up_fp=[],
-        maternal_lives_saved_from_mh_interventions=[],
-        maternal_morbidities_averted=[],
-        neonatal_lives_saved=[],
-        stillbirths_averted=[],
+@router.get(
+    "/parameters/{country_code}",
+    response_model=DefaultParameters,
+    tags=["parameters"],
+    summary="Fetch default parameters for a country",
+)
+def get_parameters(
+    country_code: str,
+    request: Request,
+    initial_year: int = 2022,
+    final_year: int = 2030,
+) -> DefaultParameters:
+    country = get_country_name(country_code)
+
+    database = request.app.state.database
+
+    constants_df = get_country_df(database["BCR inputs constant"], country)
+    mh_costs_df = get_country_df(database["MH costs"], country)
+
+    initial_year = max(initial_year, 2021)
+    final_year = min(final_year, 2030)
+
+    return DefaultParameters(
+        initial_year=initial_year,
+        final_year=final_year,
+        population=constants_df["Population"].values[0],
+        gdp_per_capita=constants_df["GDP per capita"].values[0],
+        weighted_gdp_per_capita=constants_df["GDP per capita weighted"].values[0],
+        annual_gdp_growth_rate=constants_df["Annual GDP growth"].values[0],
+        annual_discount_rate=constants_df["Discounting"].values[0],
+        proportion_of_women_in_workforce=constants_df[
+            "Proportion of women who participate in workforce"
+        ].values[0],
+        average_age_of_pregnancy=constants_df["Average age of pregnancy"].values[0],
+        maternal_mortality_rate=constants_df["Maternal mortality rate"].values[0],
+        neonatal_mortality_rate=constants_df["Neonatal mortality rate"].values[0],
+        stillbirth_rate=constants_df["Stillbirth rate"].values[0],
+        average_annual_salary=constants_df["Average annual salary"].values[0],
+        workforce_participation_rate=constants_df["Workforce participation"].values[0],
+        life_expectancy=constants_df["Life expectancy"].values[0],
+        mh_costs=(
+            mh_costs_df[[f"{year}.1" for year in range(initial_year, final_year + 1)]]
+            .values[0]
+            .tolist()
+        ),
     )
 
 
-@router.post("/report/{country}", response_model=Dict)
-def create_report(country, parameters: Parameters) -> Dict:
-    return generate_report([country])
+@router.post(
+    "/report/default/{country_code}",
+    response_model=Dict,
+    tags=["report"],
+    summary="Generate a country report using default parameters",
+)
+def create_report(country_code, request: Request) -> Dict:
+    country = get_country_name(country_code)
+
+    return generate_report(request.app.state.database, country)
+
+
+@router.post(
+    "/report/{country_code}",
+    response_model=Dict,
+    tags=["report"],
+    summary="Generate a country report using custom parameters",
+)
+def create_report(country_code, parameters: CustomParameters, request: Request) -> Dict:
+    country = get_country_name(country_code)
+
+    return generate_report(request.app.state.database, country, parameters)
 
 
 app.include_router(router)
+
+
+@app.on_event("startup")
+async def startup():
+    input_path = (
+        Path(__file__).parent / "engine" / "UNFPA_inputs_gradedGDPgrowth_20220802.xlsx"
+    )
+
+    app.state.database = read_all_data(str(input_path))

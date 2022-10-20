@@ -5,8 +5,6 @@ import pandas as pd
 
 @cache
 def read_data(file_path, sheet_name):
-    print(file_path, sheet_name)
-
     return pd.read_excel(file_path, sheet_name=sheet_name)
 
 
