@@ -3,4 +3,3 @@ fastapi-camelcase
 numpy
 openpyxl
 pandas
-XlsxWriter
