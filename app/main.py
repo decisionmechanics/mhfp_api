@@ -6,7 +6,7 @@ from app.engine.calculations import generate_report, get_country_df, read_all_da
 from app.engine.countries import get_country_name
 from app.schema import CustomParameters, DefaultParameters, Report
 
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 
 
 app = FastAPI(
