@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.engine.calculations import generate_report, get_country_df, read_all_data
+from app.engine.calculations import generate_report, get_country_df, read_database
 from app.engine.countries import get_country_name
 from app.schema import CustomParameters, DefaultParameters, Report
 
@@ -107,4 +107,4 @@ async def startup():
         Path(__file__).parent / "engine" / "UNFPA_inputs_gradedGDPgrowth_20220802.xlsx"
     )
 
-    app.state.database = read_all_data(str(input_path))
+    app.state.database = read_database(str(input_path))

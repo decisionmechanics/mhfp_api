@@ -5,7 +5,7 @@ import os
 from app.engine.all_countries_loop import *
 from app.engine.calc_benefit_types import *
 from app.engine.sensitivity_analysis import *
-from app.engine.calculations import read_all_data
+from app.engine.calculations import read_database
 
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -23,7 +23,7 @@ regions = regions.values
 region_list = regions[:, [0]].flatten()
 region_list = ["Kenya"]
 
-input_data = read_all_data(input_path)
+input_data = read_database(input_path)
 
 # Include option to take out SB related to FP
 main_results, daly_df = run_bcr_script(

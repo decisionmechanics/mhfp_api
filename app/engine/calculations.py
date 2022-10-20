@@ -12,7 +12,7 @@ database_path = (
 )
 
 
-def read_all_data(database_path):
+def read_database(database_path):
     sheet_names = [
         "Mat lives saved",
         "Neo lives saved",
@@ -25,6 +25,7 @@ def read_all_data(database_path):
         "Wasting averted",
         "Stunting averted",
         "BCR inputs constant",
+        "FP costs discounted",
         "MH costs",
     ]
 
@@ -59,7 +60,7 @@ def generate_custom_database(database, country, parameters):
 
     database["BCR inputs constant"] = constants_df
 
-    mh_costs_df = get_country_df(database["MH costs"], country)
+    discounted_fp_costs_df = get_country_df(database["FP costs discounted"], country)
     maternal_lives_saved_from_mh_interventions_df = get_country_df(
         database["Mat lives saved"], country
     )
@@ -75,14 +76,21 @@ def generate_custom_database(database, country, parameters):
         database["Mat morbidities averted"], country
     )
 
+    total_discounted_fp_costs = 0
+    total_discounted_mh_costs = 0
+
     for index, year in enumerate(
         range(parameters.initial_year, parameters.final_year + 1)
     ):
+        total_discounted_fp_costs += discounted_fp_costs_df[year]
+
+        discount_factor = 1 / (1 + parameters.annual_discount_rate) ** (year - 2020)
+        total_discounted_mh_costs += parameters.mh_costs[index] * discount_factor
+
         maternal_lives_saved = parameters.maternal_lives_saved_from_mh_interventions[
             index
         ]
 
-        mh_costs_df[f"{year}.1"] = parameters.mh_costs[index]
         maternal_lives_saved_from_mh_interventions_df[year] = maternal_lives_saved
         neonatal_lives_saved_df[year] = parameters.neonatal_lives_saved[index]
         stillbirths_averted_df[year] = parameters.stillbirths_averted[index]
@@ -96,9 +104,12 @@ def generate_custom_database(database, country, parameters):
             country, maternal_lives_saved
         )
 
+    constants_df["Total expenditure"] = (
+        total_discounted_fp_costs + total_discounted_mh_costs
+    )
+
     custom_database = database.copy()
 
-    custom_database["MH costs"] = mh_costs_df
     custom_database["Mat lives saved"] = maternal_lives_saved_from_mh_interventions_df
     custom_database["Neo lives saved"] = neonatal_lives_saved_df
     custom_database["Stillbirths averted"] = stillbirths_averted_df
@@ -107,6 +118,7 @@ def generate_custom_database(database, country, parameters):
     ] = unintended_pregnancies_averted_df
     custom_database["FP_Mat lives saved"] = maternal_lives_saved_from_scaling_up_fp_df
     custom_database["Mat morbidities averted"] = maternal_morbidities_averted_df
+    custom_database["BCR inputs constant"] - constants_df
 
     return custom_database
 
@@ -162,7 +174,7 @@ def generate_report(database, country, parameters=None):
 
 
 def main():
-    database = read_all_data(
+    database = read_database(
         Path(__file__).parent / "UNFPA_inputs_gradedGDPgrowth_20220802.xlsx"
     )
     print(generate_report(database, "Kenya"))
