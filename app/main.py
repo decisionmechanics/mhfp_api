@@ -10,7 +10,7 @@ VERSION = "0.1.3"
 
 
 app = FastAPI(
-    title="BCR Calculator",
+    title="Benefit-Cost Ratio for FP/MH Calculator API",
     description="API for generating country-level BCR reports",
     version=VERSION,
     swagger_ui_parameters={"defaultModelsExpandDepth": -1},
