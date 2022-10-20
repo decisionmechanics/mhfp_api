@@ -1,5 +1,5 @@
-# docker build -t bcrcalc .
-# docker run -d --name bcrcalc -p 8084:80 --rm bcrcalc
+# docker build -t bcrfpmhapi .
+# docker run -d --name bcrfpmhapi -p 8084:80 --rm bcrfpmhapi
 
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
