@@ -36,7 +36,7 @@ def read_database(database_path):
 
 
 def get_country_df(df, country):
-    return df[df["Country"] == country]
+    return df[df["Country"] == country].copy()
 
 
 def generate_custom_database(database, country, parameters):
@@ -57,8 +57,6 @@ def generate_custom_database(database, country, parameters):
     constants_df["Average annual salary"] = parameters.average_annual_salary
     constants_df["Workforce participation"] = parameters.workforce_participation_rate
     constants_df["Life expectancy"] = parameters.life_expectancy
-
-    database["BCR inputs constant"] = constants_df
 
     discounted_fp_costs_df = get_country_df(database["FP costs discounted"], country)
     maternal_lives_saved_from_mh_interventions_df = get_country_df(
@@ -87,21 +85,24 @@ def generate_custom_database(database, country, parameters):
         discount_factor = 1 / (1 + parameters.annual_discount_rate) ** (year - 2020)
         total_discounted_mh_costs += parameters.mh_costs[index] * discount_factor
 
-        maternal_lives_saved = parameters.maternal_lives_saved_from_mh_interventions[
-            index
-        ]
-
-        maternal_lives_saved_from_mh_interventions_df[year] = maternal_lives_saved
+        maternal_lives_saved_from_mh_interventions_df[
+            year
+        ] = parameters.maternal_lives_saved_from_mh_interventions[index]
         neonatal_lives_saved_df[year] = parameters.neonatal_lives_saved[index]
         stillbirths_averted_df[year] = parameters.stillbirths_averted[index]
         unintended_pregnancies_averted_df[
             year
         ] = parameters.unintended_pregnancies_averted[index]
+
+        maternal_lives_saved_from_scaling_up_fp = (
+            parameters.maternal_lives_saved_from_scaling_up_fp[index]
+        )
+
         maternal_lives_saved_from_scaling_up_fp_df[
             year
-        ] = parameters.maternal_lives_saved_from_scaling_up_fp[index]
+        ] = maternal_lives_saved_from_scaling_up_fp
         maternal_morbidities_averted_df[year] = calculate_maternal_morbidities_averted(
-            country, maternal_lives_saved
+            country, maternal_lives_saved_from_scaling_up_fp
         )
 
     constants_df["Total expenditure"] = (
@@ -118,7 +119,7 @@ def generate_custom_database(database, country, parameters):
     ] = unintended_pregnancies_averted_df
     custom_database["FP_Mat lives saved"] = maternal_lives_saved_from_scaling_up_fp_df
     custom_database["Mat morbidities averted"] = maternal_morbidities_averted_df
-    custom_database["BCR inputs constant"] - constants_df
+    custom_database["BCR inputs constant"] = constants_df
 
     return custom_database
 
