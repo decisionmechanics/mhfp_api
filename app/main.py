@@ -6,12 +6,12 @@ from app.engine.calculations import generate_report, get_country_df, read_databa
 from app.engine.countries import get_country_name
 from app.schema import CustomParameters, DefaultParameters, Report
 
-VERSION = "0.1.4"
+VERSION = "0.1.5"
 
 
 app = FastAPI(
-    title="Benefit-Cost Ratio for FP/MH Calculator API",
-    description="API for generating country-level BCR reports",
+    title="Child Survival Family Planning (CSFP) API",
+    description="API for generating country-level child survival family planning reports",
     version=VERSION,
     swagger_ui_parameters={"defaultModelsExpandDepth": -1},
 )

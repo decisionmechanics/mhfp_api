@@ -1,5 +1,5 @@
-# docker build -t bcrfpmhapi .
-# docker run -d --name bcrfpmhapi -p 8084:80 --rm bcrfpmhapi
+# docker build -t andrewtait/csfp .
+# docker run -d --name csfp -p 8084:80 --rm andrewtait/csfp
 
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
