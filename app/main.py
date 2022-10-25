@@ -6,12 +6,11 @@ from app.engine.calculations import generate_report, get_country_df, read_databa
 from app.engine.countries import get_country_name
 from app.schema import CustomParameters, DefaultParameters, Report
 
-VERSION = "0.1.5"
-
+VERSION = "0.1.6"
 
 app = FastAPI(
-    title="Child Survival Family Planning (CSFP) API",
-    description="API for generating country-level child survival family planning reports",
+    title="Maternal Health & Family Planning (MHFP) API",
+    description="API for generating country-level maternal health & family planning reports",
     version=VERSION,
     swagger_ui_parameters={"defaultModelsExpandDepth": -1},
 )

@@ -1,5 +1,5 @@
-# docker build -t andrewtait/csfp .
-# docker run -d --name csfp -p 8084:80 --rm andrewtait/csfp
+# docker build -t andrewtait/mhfp .
+# docker run -d --name mhfp -p 8084:80 --rm andrewtait/mhfp
 
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 

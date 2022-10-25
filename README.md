@@ -1,3 +1,3 @@
-# BCR Calc
+# Maternal Health & Family Planning (MHFP) API
 
-Web service that calculates results for a given country.
+API for generating country-level maternal health & family planning reports.
