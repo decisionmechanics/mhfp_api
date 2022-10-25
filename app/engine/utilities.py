@@ -1,11 +1,5 @@
-from functools import cache
 import json
 import pandas as pd
-
-
-@cache
-def read_data(file_path, sheet_name):
-    return pd.read_excel(file_path, sheet_name=sheet_name)
 
 
 def collate_results(report_names, main_df, sensitivity_analysis_dfs, daly_df):

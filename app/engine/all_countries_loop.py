@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from app.engine.calc_benefit_types import *
 from app.engine.population_structure import *
-from app.engine.utilities import read_data
 
 np.seterr(divide="ignore", invalid="ignore")
 

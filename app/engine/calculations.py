@@ -1,8 +1,8 @@
 import numpy as np
+import pandas as pd
 from pathlib import Path
 from app.engine.all_countries_loop import run_bcr_script
 from app.engine.sensitivity_analysis import run_sensitivity_analysis
-from app.engine.utilities import read_data
 from app.engine.maternal_morbidities import calculate_maternal_morbidities_averted
 
 np.seterr(divide="ignore", invalid="ignore")
@@ -29,10 +29,9 @@ def read_database(database_path):
         "MH costs",
     ]
 
-    return {
-        sheet_name: read_data(database_path, sheet_name=sheet_name)
-        for sheet_name in sheet_names
-    }
+    xlsx = pd.ExcelFile(database_path)
+
+    return {sheet_name: xlsx.parse(sheet_name=sheet_name) for sheet_name in sheet_names}
 
 
 def get_country_df(df, country):
