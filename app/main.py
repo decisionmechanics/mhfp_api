@@ -1,21 +1,22 @@
-from pathlib import Path
+import os.path
+import pathlib
 from typing import Dict
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Path, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.engine.calculations import generate_report, get_country_df, read_database
 from app.engine.countries import get_country_name
-import os.path
 from app.schema import CustomParameters, DefaultParameters, Report
 
 VERSION = "0.1.6"
 
 open_api_url = "/openapi.json"
-application_prefix = '/mhfp'
+application_prefix = "/mhfp"
 
 if os.path.isfile("/root/in-container.txt"):
     open_api_url = application_prefix + open_api_url
 
-app = FastAPI(openapi_url=open_api_url,
+app = FastAPI(
+    openapi_url=open_api_url,
     title="Maternal Health & Family Planning (MHFP) API",
     description="API for generating country-level maternal health & family planning reports",
     version=VERSION,
@@ -39,8 +40,10 @@ router = APIRouter(prefix=application_prefix)
     summary="Fetch default parameters for a country",
 )
 def get_parameters(
-    country_code: str,
     request: Request,
+    country_code: str = Path(
+        ..., description="ISO 3166 three-letter or numeric country code", example="KEN"
+    ),
     initial_year: int = 2022,
     final_year: int = 2030,
 ) -> DefaultParameters:
@@ -86,7 +89,14 @@ def get_parameters(
     tags=["report"],
     summary="Generate a country report using default parameters",
 )
-def create_report(country_code, request: Request) -> Dict:
+def create_report(
+    request: Request,
+    country_code: str = Path(
+        ...,
+        description="ISO 3166 three-letter or numeric country code",
+        example="KEN",
+    ),
+) -> Dict:
     country = get_country_name(country_code)
 
     return generate_report(request.app.state.database, country)
@@ -98,7 +108,13 @@ def create_report(country_code, request: Request) -> Dict:
     tags=["report"],
     summary="Generate a country report using custom parameters",
 )
-def create_report(country_code, parameters: CustomParameters, request: Request) -> Dict:
+def create_report(
+    parameters: CustomParameters,
+    request: Request,
+    country_code: str = Path(
+        ..., description="ISO 3166 three-letter or numeric country code", example="KEN"
+    ),
+) -> Dict:
     country = get_country_name(country_code)
 
     return generate_report(request.app.state.database, country, parameters)
@@ -110,7 +126,9 @@ app.include_router(router)
 @app.on_event("startup")
 async def startup():
     input_path = (
-        Path(__file__).parent / "engine" / "UNFPA_inputs_gradedGDPgrowth_20220802.xlsx"
+        pathlib.Path(__file__).parent
+        / "engine"
+        / "UNFPA_inputs_gradedGDPgrowth_20220802.xlsx"
     )
 
     app.state.database = read_database(str(input_path))
