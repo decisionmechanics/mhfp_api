@@ -4,11 +4,18 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.engine.calculations import generate_report, get_country_df, read_database
 from app.engine.countries import get_country_name
+import os.path
 from app.schema import CustomParameters, DefaultParameters, Report
 
 VERSION = "0.1.6"
 
-app = FastAPI(
+open_api_url = "/openapi.json"
+application_prefix = '/mhfp'
+
+if os.path.isfile("/root/in-container.txt"):
+    open_api_url = application_prefix + open_api_url
+
+app = FastAPI(openapi_url=open_api_url,
     title="Maternal Health & Family Planning (MHFP) API",
     description="API for generating country-level maternal health & family planning reports",
     version=VERSION,
@@ -22,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix=application_prefix)
 
 
 @router.get(
