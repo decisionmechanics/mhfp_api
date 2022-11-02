@@ -22,3 +22,11 @@ def collate_results(report_names, main_df, sensitivity_analysis_dfs, daly_df):
     data[report_names[-1]] = json.loads(daly_json)
 
     return data
+
+
+def parse_numeric_country_code(country_code):
+    return int(country_code) if str.isnumeric(country_code) else None
+
+
+def parse_alpha_country_code(country_code):
+    return country_code if not str.isnumeric(country_code) else None

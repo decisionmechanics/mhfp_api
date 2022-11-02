@@ -5,6 +5,7 @@ from fastapi import APIRouter, FastAPI, Path, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.engine.calculations import generate_report, get_country_df, read_database
 from app.engine.countries import get_country_name
+from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
 from app.schema import CustomParameters, DefaultParameters, Report
 
 VERSION = "0.1.6"
@@ -58,6 +59,8 @@ def get_parameters(
     final_year = min(final_year, 2030)
 
     return DefaultParameters(
+        country_code_numeric=parse_numeric_country_code(country_code),
+        country_code_alpha=parse_alpha_country_code(country_code),
         initial_year=initial_year,
         final_year=final_year,
         population=constants_df["Population"].values[0],
@@ -99,7 +102,7 @@ def create_report(
 ) -> Dict:
     country = get_country_name(country_code)
 
-    return generate_report(request.app.state.database, country)
+    return generate_report(request.app.state.database, country_code, country)
 
 
 @router.post(
@@ -117,7 +120,9 @@ def create_report(
 ) -> Dict:
     country = get_country_name(country_code)
 
-    return generate_report(request.app.state.database, country, parameters)
+    return generate_report(
+        request.app.state.database, country_code, country, parameters
+    )
 
 
 app.include_router(router)

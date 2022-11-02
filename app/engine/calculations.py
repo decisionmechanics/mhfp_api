@@ -1,9 +1,10 @@
+from pathlib import Path
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from app.engine.all_countries_loop import run_bcr_script
-from app.engine.sensitivity_analysis import run_sensitivity_analysis
 from app.engine.maternal_morbidities import calculate_maternal_morbidities_averted
+from app.engine.sensitivity_analysis import run_sensitivity_analysis
+from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
 
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -138,7 +139,7 @@ def format_report(report):
                 del subitem["Package"]
 
 
-def generate_report(database, country, parameters=None):
+def generate_report(database, country_code, country, parameters=None):
     FINAL_YEAR = 2050
     INCLUDE_FP_STILLBIRTH_MORTALITY = False
 
@@ -169,6 +170,9 @@ def generate_report(database, country, parameters=None):
     )
 
     format_report(report)
+
+    report["ISO numeric"] = parse_numeric_country_code(country_code)
+    report["ISO alpha"] = parse_alpha_country_code(country_code)
 
     return report
 

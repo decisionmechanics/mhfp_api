@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Optional
 from fastapi_camelcase import CamelModel
 
 
 class DefaultParameters(CamelModel):
+    country_code_numeric: Optional[int]
+    country_code_alpha: Optional[str]
     initial_year: int
     final_year: int
     population: int
@@ -23,22 +25,23 @@ class DefaultParameters(CamelModel):
     class Config:
         schema_extra = {
             "example": {
-                "initial_year": 2022,
-                "final_year": 2030,
+                "countryCodeAlpha": "KEN",
+                "initialYear": 2022,
+                "finalYear": 2030,
                 "population": 53771300,
-                "gdp_per_capita": 1838.21,
-                "weighted_gdp_per_capita": 2924.978114170695,
-                "annual_gdp_growth_rate": 0.025,
-                "annual_discount_rate": 0.03,
-                "proportion_of_women_in_workforce": 0.7241,
-                "average_age_of_pregnancy": 28.697,
-                "maternal_mortality_rate": 280.580532767762,
-                "neonatal_mortality_rate": 21,
-                "stillbirth_rate": 19.7,
-                "average_annual_salary": 4163.75,
-                "workforce_participation_rate": 0.7456,
-                "life_expectancy": 66.7,
-                "mh_costs": [
+                "gdpPerCapita": 1838.21,
+                "weightedGdpPerCapita": 2924.978114170695,
+                "annualGdpGrowthRate": 0.025,
+                "annualDiscountRate": 0.03,
+                "proportionOfWomenInWorkforce": 0.7241,
+                "averageAgeOfPregnancy": 28.697,
+                "maternalMortalityRate": 280.580532767762,
+                "neonatalMortalityRate": 21,
+                "stillbirthRate": 19.7,
+                "averageAnnualSalary": 4163.75,
+                "workforceParticipationRate": 0.7456,
+                "lifeExpectancy": 66.7,
+                "mhCosts": [
                     22_048_052,
                     22_122_209,
                     22_078_877,
@@ -63,22 +66,22 @@ class CustomParameters(DefaultParameters):
     class Config:
         schema_extra = {
             "example": {
-                "initial_year": 2022,
-                "final_year": 2030,
+                "initialYear": 2022,
+                "finalYear": 2030,
                 "population": 53771300,
-                "gdp_per_capita": 1838.21,
-                "weighted_gdp_per_capita": 2924.978114170695,
-                "annual_gdp_growth_rate": 0.025,
-                "annual_discount_rate": 0.03,
-                "proportion_of_women_in_workforce": 0.7241,
-                "average_age_of_pregnancy": 28.697,
-                "maternal_mortality_rate": 280.580532767762,
-                "neonatal_mortality_rate": 21,
-                "stillbirth_rate": 19.7,
-                "average_annual_salary": 4163.75,
-                "workforce_participation_rate": 0.7456,
-                "life_expectancy": 66.7,
-                "mh_costs": [
+                "gdpPerCapita": 1838.21,
+                "weightedGdpPerCapita": 2924.978114170695,
+                "annualGdpGrowthRate": 0.025,
+                "annualDiscountRate": 0.03,
+                "proportionOfWomenInWorkforce": 0.7241,
+                "averageAgeOfPregnancy": 28.697,
+                "maternalMortalityRate": 280.580532767762,
+                "neonatalMortalityRate": 21,
+                "stillbirthRate": 19.7,
+                "averageAnnualSalary": 4163.75,
+                "workforceParticipationRate": 0.7456,
+                "lifeExpectancy": 66.7,
+                "mhCosts": [
                     65_796_130,
                     87_952_418,
                     110_552_574,
@@ -89,7 +92,7 @@ class CustomParameters(DefaultParameters):
                     222_838_578,
                     242_778_263,
                 ],
-                "maternal_lives_saved_from_mh_interventions": [
+                "maternalLivesSavedFromMhInterventions": [
                     626.2826995823962,
                     1_282.0871304808752,
                     1_819.0815822284321,
@@ -100,7 +103,7 @@ class CustomParameters(DefaultParameters):
                     3_131.0402686141774,
                     3_166.990796238436,
                 ],
-                "neonatal_lives_saved": [
+                "neonatalLivesSaved": [
                     1_567.916251073726,
                     2_874.9874222511353,
                     4_050.2717447362265,
@@ -111,7 +114,7 @@ class CustomParameters(DefaultParameters):
                     7_986.129374411499,
                     8_349.707235760718,
                 ],
-                "stillbirths_averted": [
+                "stillbirthsAverted": [
                     2_708.1617036417883,
                     5_158.053272587902,
                     7_374.871256126309,
@@ -122,7 +125,7 @@ class CustomParameters(DefaultParameters):
                     14_934.926290832747,
                     15_668.982363582001,
                 ],
-                "unintended_pregnancies_averted": [
+                "unintendedPregnanciesAverted": [
                     68_401.36730371183,
                     142_589.35347971413,
                     222_697.0775421029,
