@@ -59,8 +59,7 @@ def get_parameters(
     final_year = min(final_year, 2030)
 
     return DefaultParameters(
-        country_code_iso_numeric=parse_numeric_country_code(country_code),
-        country_code_iso_alpha=parse_alpha_country_code(country_code),
+        country_code_iso=country_code.rjust(3, "0"),
         initial_year=initial_year,
         final_year=final_year,
         population=constants_df["Population"].values[0],

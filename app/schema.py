@@ -3,8 +3,7 @@ from fastapi_camelcase import CamelModel
 
 
 class DefaultParameters(CamelModel):
-    country_code_iso_numeric: Optional[int]
-    country_code_iso_alpha: Optional[str]
+    country_code_iso: str
     initial_year: int
     final_year: int
     population: int
@@ -25,7 +24,7 @@ class DefaultParameters(CamelModel):
     class Config:
         schema_extra = {
             "example": {
-                "countryCodeAlpha": "KEN",
+                "countryCodeIso": "KEN",
                 "initialYear": 2022,
                 "finalYear": 2030,
                 "population": 53771300,
@@ -66,6 +65,7 @@ class CustomParameters(DefaultParameters):
     class Config:
         schema_extra = {
             "example": {
+                "countryCodeIso": "KEN",
                 "initialYear": 2022,
                 "finalYear": 2030,
                 "population": 53771300,

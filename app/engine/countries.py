@@ -243,4 +243,4 @@ COUNTRIES = {
 
 
 def get_country_name(code):
-    return COUNTRIES[code.upper().ljust(3, "0")]
+    return COUNTRIES[code.upper().rjust(3, "0")]

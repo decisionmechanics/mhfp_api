@@ -171,8 +171,7 @@ def generate_report(database, country_code, country, parameters=None):
 
     format_report(report)
 
-    report["ISO numeric"] = parse_numeric_country_code(country_code)
-    report["ISO alpha"] = parse_alpha_country_code(country_code)
+    report["ISO country code"] = country_code.rjust(3, "0")
 
     return report
 
