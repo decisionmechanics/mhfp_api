@@ -172,6 +172,7 @@ def generate_report(database, country_code, country, parameters=None):
     format_report(report)
 
     report["ISO country code"] = country_code.rjust(3, "0")
+    report["Projected year"] = FINAL_YEAR
 
     return report
 
