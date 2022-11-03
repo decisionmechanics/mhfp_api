@@ -1,3 +1,5 @@
+from app.schema import Country
+
 COUNTRIES = {
     "AFG": "Afghanistan",
     "ALB": "Albania",
@@ -240,6 +242,23 @@ COUNTRIES = {
     "894": "Zambia",
     "716": "Zimbabwe",
 }
+
+
+def get_country_codes():
+    countries = {}
+
+    for code, name in COUNTRIES.items():
+        countries[name] = countries.get(name, {})
+
+        countries[name]["alpha" if not code.isdigit() else "numeric"] = code
+
+    return sorted(
+        [
+            Country(name=name, alpha=codes["alpha"], numeric=codes["numeric"])
+            for name, codes in countries.items()
+        ],
+        key=lambda country: country.name,
+    )
 
 
 def get_country_name(code):

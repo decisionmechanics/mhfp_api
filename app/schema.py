@@ -2,6 +2,21 @@ from typing import List, Optional
 from fastapi_camelcase import CamelModel
 
 
+class Country(CamelModel):
+    name: str
+    alpha: str
+    numeric: str
+
+    class Config:
+        schema_extra = {
+            "example": [
+                {"name": "Afghanistan", "alpha": "AFG", "numeric": "004"},
+                {"name": "Albania", "alpha": "ALB", "numeric": "008"},
+                {"name": "Algeria", "alpha": "DZA", "numeric": "012"},
+            ]
+        }
+
+
 class DefaultParameters(CamelModel):
     country_code_iso: str
     initial_year: int

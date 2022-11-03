@@ -1,12 +1,12 @@
 import os.path
 import pathlib
-from typing import Dict
+from typing import Dict, List
 from fastapi import APIRouter, FastAPI, Path, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.engine.calculations import generate_report, get_country_df, read_database
-from app.engine.countries import get_country_name
+from app.engine.countries import get_country_codes, get_country_name
 from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
-from app.schema import CustomParameters, DefaultParameters, Report
+from app.schema import Country, CustomParameters, DefaultParameters
 
 VERSION = "0.1.6"
 
@@ -32,6 +32,16 @@ app.add_middleware(
 )
 
 router = APIRouter(prefix=application_prefix)
+
+
+@router.get(
+    "/countries",
+    response_model=List[Country],
+    tags=["parameters"],
+    summary="Fetch list of countries and ISO codes",
+)
+def get_countries() -> List[Country]:
+    return get_country_codes()
 
 
 @router.get(
