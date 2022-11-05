@@ -6,6 +6,8 @@ from app.engine.maternal_morbidities import calculate_maternal_morbidities_avert
 from app.engine.sensitivity_analysis import run_sensitivity_analysis
 from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
 
+DEFAULT_INITIAL_YEAR = 2022
+
 np.seterr(divide="ignore", invalid="ignore")
 
 database_path = (
@@ -139,6 +141,22 @@ def format_report(report):
                 del subitem["Package"]
 
 
+def format_maternal_morbidities_averted(
+    country, parameters, maternal_morbidities_averted_df
+):
+    initial_year = (
+        DEFAULT_INITIAL_YEAR if parameters is None else parameters.initial_year
+    )
+
+    return (
+        maternal_morbidities_averted_df.loc[
+            maternal_morbidities_averted_df["Country"] == country, initial_year:2030
+        ]
+        .iloc[0]
+        .to_dict()
+    )
+
+
 def generate_report(database, country_code, country, parameters=None):
     FINAL_YEAR = 2050
     INCLUDE_FP_STILLBIRTH_MORTALITY = False
@@ -171,6 +189,11 @@ def generate_report(database, country_code, country, parameters=None):
 
     format_report(report)
 
+    maternal_morbidities_averted = format_maternal_morbidities_averted(
+        country, parameters, custom_database["Mat morbidities averted"]
+    )
+
+    report["Maternal morbidities averted"] = maternal_morbidities_averted
     report["ISO country code"] = country_code.rjust(3, "0")
     report["Projected year"] = FINAL_YEAR
 

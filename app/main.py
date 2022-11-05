@@ -3,7 +3,12 @@ import pathlib
 from typing import Dict, List
 from fastapi import APIRouter, FastAPI, Path, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.engine.calculations import generate_report, get_country_df, read_database
+from app.engine.calculations import (
+    DEFAULT_INITIAL_YEAR,
+    generate_report,
+    get_country_df,
+    read_database,
+)
 from app.engine.countries import get_country_codes, get_country_name
 from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
 from app.schema import Country, CustomParameters, DefaultParameters
@@ -55,7 +60,7 @@ def get_parameters(
     country_code: str = Path(
         ..., description="ISO 3166 three-letter or numeric country code", example="KEN"
     ),
-    initial_year: int = 2022,
+    initial_year: int = DEFAULT_INITIAL_YEAR,
     final_year: int = 2030,
 ) -> DefaultParameters:
     country = get_country_name(country_code)
