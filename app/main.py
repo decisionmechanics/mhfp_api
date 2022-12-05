@@ -1,7 +1,7 @@
 import os.path
 import pathlib
 from typing import Dict, List
-from fastapi import APIRouter, FastAPI, Path, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Path, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.engine.calculations import (
     DEFAULT_INITIAL_YEAR,
@@ -12,6 +12,45 @@ from app.engine.calculations import (
 from app.engine.countries import get_country_codes, get_country_name
 from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
 from app.schema import Country, CustomParameters, DefaultParameters
+
+
+def validate_custom_report_parameters(parameters: CustomParameters) -> None:
+    expected_annual_value_count = parameters.final_year - parameters.initial_year + 1
+
+    if expected_annual_value_count != len(parameters.mh_costs):
+        raise ValueError(
+            f"Expected {expected_annual_value_count} values for MH costs, got {len(parameters.mh_costs)}"
+        )
+
+    if expected_annual_value_count != len(
+        parameters.maternal_lives_saved_from_mh_interventions
+    ):
+        raise ValueError(
+            f"Expected {expected_annual_value_count} values for maternal lives saved from MH interventions, got {len(parameters.maternal_lives_saved_from_mh_interventions)}"
+        )
+
+    if expected_annual_value_count != len(parameters.neonatal_lives_saved):
+        raise ValueError(
+            f"Expected {expected_annual_value_count} values for neo-natal lives saved, got {len(parameters.neonatal_lives_saved)}"
+        )
+
+    if expected_annual_value_count != len(parameters.stillbirths_averted):
+        raise ValueError(
+            f"Expected {expected_annual_value_count} values for stillbirths averted, got {len(parameters.stillbirths_averted)}"
+        )
+
+    if expected_annual_value_count != len(parameters.unintended_pregnancies_averted):
+        raise ValueError(
+            f"Expected {expected_annual_value_count} values for unitended pregnancies averted, got {len(parameters.unintended_pregnancies_averted)}"
+        )
+
+    if expected_annual_value_count != len(
+        parameters.maternal_lives_saved_from_scaling_up_fp
+    ):
+        raise ValueError(
+            f"Expected {expected_annual_value_count} values for maternal lives saved from scaling up FP, got {len(parameters.maternal_lives_saved_from_scaling_up_fp)}"
+        )
+
 
 VERSION = "0.1.6"
 
@@ -132,6 +171,11 @@ def create_report(
         ..., description="ISO 3166 three-letter or numeric country code", example="KEN"
     ),
 ) -> Dict:
+    try:
+        validate_custom_report_parameters(parameters)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
     country = get_country_name(country_code)
 
     return generate_report(

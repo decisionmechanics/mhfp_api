@@ -4,7 +4,6 @@ import pandas as pd
 from app.engine.all_countries_loop import run_bcr_script
 from app.engine.maternal_morbidities import calculate_maternal_morbidities_averted
 from app.engine.sensitivity_analysis import run_sensitivity_analysis
-from app.engine.utilities import parse_alpha_country_code, parse_numeric_country_code
 
 DEFAULT_INITIAL_YEAR = 2022
 
